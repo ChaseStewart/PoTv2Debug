@@ -8,14 +8,12 @@ uint8_t prevFret;
 uint8_t keyStatus0;
 uint8_t keyStatus1;
 uint8_t keyStatus2;
-uint8_t detStatus;
 
+uint16_t key;
+uint16_t prevKey;
 uint8_t strumStatus0;
 uint8_t strumStatus1;
 uint8_t strumStatus2;
-uint16_t key;
-uint16_t prevKey;
-
 
 void setup() 
 {
@@ -25,8 +23,8 @@ void setup()
   Serial.println("*** Paddle of Theseus Fretboard Test v2 ***");
   Serial.println();
 
-  pinMode(1, INPUT);
   pinMode(0, INPUT);
+  pinMode(1, INPUT);
   pinMode(14, INPUT);
   pinMode(15, INPUT); 
    
