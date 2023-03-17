@@ -51,7 +51,7 @@ QTouchBoard strumBoard = QTouchBoard(0, 1);
 /**************************************************************************/
 void setup() 
 {
-  Serial.begin(115200);
+  Serial.begin(500000);
   
   Serial.println("*** Paddle of Theseus Fretboard Test v2 ***");
   Serial.println();
@@ -110,7 +110,20 @@ void loop()
   {
     screenUpdate = false;
     Serial.print('\f');
-    Serial.println("*** Paddle of Theseus Fretboard Test v2 ***");
+    Serial.println("+=============================================================================+");
+    Serial.println("|                    * Paddle of Theseus v2 Debug Tool *                      |");
+    Serial.println("|                                                                             |");
+    Serial.println("|                        Written by Chase E. Stewart                          |");
+    Serial.println("|                         For Hidden Layer Design                             |");
+    Serial.println("+===================================+=========================================+");
+    Serial.print("| Curr Fret:"); Serial.print((fret < 10) ? " 0" : " "); Serial.print(fret, DEC); 
+    Serial.print("/ 19                 | ");
+    Serial.print("Keys Pressed  3:["); Serial.print((key & 0x8) ? 'x' : ' '); Serial.print("] 2:["); 
+    Serial.print((key & 0x4) ? 'x' : ' '); Serial.print("] 1:["); Serial.print((key & 0x2) ? 'x' : ' '); 
+    Serial.print("] 0:["); Serial.print((key & 0x1) ? 'x' : ' '); Serial.println("]   |");
+    Serial.println("+===================================+=========================================+");
+
+#if 0
     Serial.print("Strum=");    Serial.print(key, HEX); 
     Serial.print(", ss2=0x"); Serial.println(strumStatus2, HEX);
     Serial.print(", ss1=0x"); Serial.print(strumStatus1, HEX);
@@ -121,6 +134,7 @@ void loop()
     Serial.print(", ks2=0x"); Serial.println(keyStatus2, HEX);  
     Serial.print(", ks1=0x"); Serial.print(keyStatus1, HEX);
     Serial.print(", ks0=0x"); Serial.print(keyStatus0, HEX); 
+#endif // if 0
   }
 }
 
