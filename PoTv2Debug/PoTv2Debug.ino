@@ -29,7 +29,6 @@
 #include "QTouchBoard.hpp"
 #include "SensorState.hpp"
 
-
 uint8_t strumStatus0, strumStatus1, strumStatus2;
 uint8_t keyStatus0, keyStatus1, keyStatus2;
 
@@ -86,5 +85,7 @@ void loop()
     strumStatus2 = strumBoard.QT1070ReadSingleReg(3);
     state.UpdateStrumKey(strumStatus0, strumStatus1, strumStatus2);
   }
+
+  // if any variables changed this iter, wipe and update screen
   state.checkUpdateScreen();
 }

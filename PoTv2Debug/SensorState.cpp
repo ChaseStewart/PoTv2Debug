@@ -9,21 +9,24 @@
 
 /**************************************************************************/
 /*!
-    @brief    Creates SensorState class and set Sensor-read variables to default values
+    @brief    Create SensorState class and set variables to default values
 */
 /**************************************************************************/
 SensorState::SensorState(void)
 {
-    uint8_t _fret = 0;
-    uint8_t _prevFret = 0;
-    uint8_t _key = 0;
-    uint8_t _prevKey = 0;
-    bool _isRotEncSwPressed = false;
-    uint8_t _imuX = 0;
-    uint8_t _imuY = 0;
-    uint8_t _imuZ = 0;
-    bool _isScreenUpdate = 0;
-        
+  _fret = 0;
+  _prevFret = 0;
+  _key = 0;
+  _prevKey = 0;
+  _rotEncSwitch = false;
+  _rotEnc = 0;
+  _rotPot = 0;
+  _ultraDist = 0;
+  _imuX = 0;
+  _imuY = 0;
+  _imuZ = 0;
+  _isScreenUpdate = false;
+  _isLefty = false;        
 }
 
  /**************************************************************************/
@@ -113,7 +116,26 @@ void SensorState::UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2)
 
 /**************************************************************************/
 /*!
+    @brief    Convenience function equivalent of %02u
+    @param    value
+              byte integer to print 
+*/
+/**************************************************************************/
+void SensorState::_printUint8_t(uint8_t value)
+{
+  Serial.print((value < 100) ? " " : ""); 
+  Serial.print((value < 10) ? "0" : ""); 
+  Serial.print(value, DEC);
+}
+
+/**************************************************************************/
+/*!
     @brief    Print sensor variable state in a TUI-like format
+    This serial output is designed to be the only output on the screen
+    and provide a user interface as opposed to a logfile format.
+    The goal is to re-write this full output as quickly as possible whenever
+    a variable changes, thus providing a responsive interface that lets a user
+    benchmark the sensors by comparing printed screen values with sensor input
 */
 /**************************************************************************/
 void SensorState::checkUpdateScreen(void)
@@ -121,14 +143,30 @@ void SensorState::checkUpdateScreen(void)
   if (_isScreenUpdate)
   {
     _isScreenUpdate = false;
-    Serial.print('\f');
+    Serial.print('\f');  // Wipe the screen output on compliant terminals before re-writing
     Serial.println("+=============================================================================+");
     Serial.println("|                    * Paddle of Theseus v2 Debug Tool *                      |");
     Serial.println("|                                                                             |");
     Serial.println("|                        Written by Chase E. Stewart                          |");
     Serial.println("|                         For Hidden Layer Design                             |");
-    Serial.println("+===================================+=========================================+");
-
+    Serial.println("|                                                                             |");
+    Serial.println("+=============================================================================+");
+    Serial.print("| Curr Fret:"); _printUint8_t(_fret);
+    Serial.print("/ 19                 | ");
+    Serial.print("Keys Pressed  3:["); Serial.print((_key & 0x8) ? 'x' : ' '); Serial.print("] 2:["); 
+    Serial.print((_key & 0x4) ? 'x' : ' '); Serial.print("] 1:["); Serial.print((_key & 0x2) ? 'x' : ' '); 
+    Serial.print("] 0:["); Serial.print((_key & 0x1) ? 'x' : ' '); Serial.println("]   |");
+    Serial.println("+-----------------------------------+-----------------------------------------+");
+    Serial.print("| RotEnc Value: "); _printUint8_t(_rotEnc);
+    Serial.print(" RotEnc SW: ["); Serial.print((_rotEncSwitch) ? 'x' : ' '); Serial.print("]  | Potentiometer value:");
+    _printUint8_t(_rotPot); Serial.println("/128             |");
+    Serial.println("+-----------------------------------+-----------------------------------------+");
+    Serial.print("| IMU x:"); _printUint8_t(_imuX);
+    Serial.print(" y:"); _printUint8_t(_imuY);
+    Serial.print(" z:"); _printUint8_t(_imuZ);
+    Serial.print("  Lefty: ["); Serial.print((_isLefty) ? 'x' : ' ');
+    Serial.print("] | Ultrasonic Distance: "); _printUint8_t(_ultraDist);
+    Serial.println("                |");
     Serial.println("+===================================+=========================================+");
   }  
 }
