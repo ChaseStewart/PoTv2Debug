@@ -9,6 +9,9 @@
 
 #include <stdint.h>
 
+#define PIN_ROT_ENC_SW  4
+#define PIN_ROT_POT  12
+
 /**************************************************************************/
 /*!
     @brief  Class to keep and display all sensor values
@@ -38,6 +41,7 @@ class SensorState
   public:
     SensorState(void);
     void UpdateFret(uint8_t ks0, uint8_t ks1, uint8_t ks2);
+    void UpdateRotPot(void);
     void UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2);
     void checkUpdateScreen(void);
 };

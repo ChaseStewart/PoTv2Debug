@@ -26,6 +26,7 @@
  * 
  */
 #include <Wire.h>
+#include <NewPing.h>
 #include "QTouchBoard.hpp"
 #include "SensorState.hpp"
 
@@ -85,6 +86,8 @@ void loop()
     strumStatus2 = strumBoard.QT1070ReadSingleReg(3);
     state.UpdateStrumKey(strumStatus0, strumStatus1, strumStatus2);
   }
+
+  state.UpdateRotPot();
 
   // if any variables changed this iter, wipe and update screen
   state.checkUpdateScreen();

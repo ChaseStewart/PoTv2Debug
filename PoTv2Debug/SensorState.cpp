@@ -14,6 +14,7 @@
 /**************************************************************************/
 SensorState::SensorState(void)
 {
+  
   _fret = 0;
   _prevFret = 0;
   _key = 0;
@@ -26,7 +27,9 @@ SensorState::SensorState(void)
   _imuY = 0;
   _imuZ = 0;
   _isScreenUpdate = false;
-  _isLefty = false;        
+  _isLefty = false;  
+   pinMode(PIN_ROT_POT, INPUT);      
+   pinMode(PIN_ROT_ENC_SW, INPUT);      
 }
 
  /**************************************************************************/
@@ -112,6 +115,16 @@ void SensorState::UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2)
   _key = result;
   _isScreenUpdate = (_key != _prevKey);
   _prevKey = _key;
+}
+
+/**************************************************************************/
+/*!
+    @brief    Read voltage val of rotary potentiometer and store value
+*/
+/**************************************************************************/
+void SensorState::UpdateRotPot(void)
+{
+  _rotPot = analogRead(PIN_ROT_POT)  
 }
 
 /**************************************************************************/
