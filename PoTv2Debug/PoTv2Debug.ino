@@ -26,13 +26,18 @@
  * 
  */
 #include <Wire.h>
+#include <Encoder.h>
 #include <NewPing.h>
 #include "QTouchBoard.hpp"
 #include "SensorState.hpp"
 
+#define PIN_ROT_ENC_A 7
+#define PIN_ROT_ENC_C 6
+
 uint8_t strumStatus0, strumStatus1, strumStatus2;
 uint8_t keyStatus0, keyStatus1, keyStatus2;
 
+Encoder RotaryEncoder = Encoder(PIN_ROT_ENC_A, PIN_ROT_ENC_C);
 QTouchBoard fretBoard = QTouchBoard(14, 15);
 QTouchBoard strumBoard = QTouchBoard(0, 1);
 SensorState state = SensorState();
@@ -87,8 +92,14 @@ void loop()
     state.UpdateStrumKey(strumStatus0, strumStatus1, strumStatus2);
   }
 
-  state.UpdateRotPot();
+  //state.UpdateRotPot(); // TODO needs HW mod on CoreModule 2.0 
+  state.UpdateRotEncSwitch();
 
+  if (state.UpdateRotEnc(RotaryEncoder.read()))
+  {
+    RotaryEncoder.write(state.GetRotEncValue());
+  }
+  
   // if any variables changed this iter, wipe and update screen
   state.checkUpdateScreen();
 }

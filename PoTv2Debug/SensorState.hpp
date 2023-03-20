@@ -12,6 +12,9 @@
 #define PIN_ROT_ENC_SW  4
 #define PIN_ROT_POT  12
 
+#define ROT_ENC_MIN 0
+#define ROT_ENC_MAX 127
+
 /**************************************************************************/
 /*!
     @brief  Class to keep and display all sensor values
@@ -28,8 +31,10 @@ class SensorState
     uint8_t _key;  ///< Bitfield of pressed keys
     uint8_t _prevKey;  ///< Bitfield of pressed keys from last loop iter
     bool _rotEncSwitch;  ///< True if rotEnc switch currently pressed, else False
+    bool _prevRotEncSwitch;  ///< True if rotEnc switch pressed last loop iter, else False
     uint8_t _rotEnc;  ///< Value of rotary encoder
-    uint8_t _rotPot;  ///< Value of rotary
+    uint8_t _prevRotEnc;  ///< Value of rotary encoder last loop iter
+    uint8_t _rotPot;  ///< Value of rotary potentiometer
     uint8_t _ultraDist;  ///< Distance in cm from ultrasonic rangefinder
     uint8_t _imuX;  ///< X-value of IMU
     uint8_t _imuY;  ///< Y-value of IMU
@@ -42,6 +47,9 @@ class SensorState
     SensorState(void);
     void UpdateFret(uint8_t ks0, uint8_t ks1, uint8_t ks2);
     void UpdateRotPot(void);
+    void UpdateRotEncSwitch(void);
+    bool UpdateRotEnc(uint8_t newValue);
+    uint8_t GetRotEncValue(void);
     void UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2);
     void checkUpdateScreen(void);
 };

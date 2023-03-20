@@ -20,7 +20,9 @@ SensorState::SensorState(void)
   _key = 0;
   _prevKey = 0;
   _rotEncSwitch = false;
+  _prevRotEncSwitch = false;
   _rotEnc = 0;
+  _prevRotEnc = 0;
   _rotPot = 0;
   _ultraDist = 0;
   _imuX = 0;
@@ -77,8 +79,11 @@ void SensorState::UpdateFret(uint8_t ks0, uint8_t ks1, uint8_t ks2)
     else if (ks0 & 0x01) _fret = 1;
     else _fret = 0;
   }
-  _isScreenUpdate = (_fret != _prevFret);
-  _prevFret = _fret;
+  if (_fret != _prevFret)
+  {
+    _isScreenUpdate = true;
+    _prevFret = _fret;
+  }
 }
 
 /**************************************************************************/
@@ -113,8 +118,11 @@ void SensorState::UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2)
     result |= 0x8;
   } 
   _key = result;
-  _isScreenUpdate = (_key != _prevKey);
-  _prevKey = _key;
+  if (_key != _prevKey);
+  {
+    _isScreenUpdate = true;
+    _prevKey = _key;
+  }
 }
 
 /**************************************************************************/
@@ -124,7 +132,61 @@ void SensorState::UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2)
 /**************************************************************************/
 void SensorState::UpdateRotPot(void)
 {
-  _rotPot = analogRead(PIN_ROT_POT)  
+  _rotPot = analogRead(PIN_ROT_POT);
+}
+
+/**************************************************************************/
+/*!
+    @brief    Store value of Rotary Encoder switch
+*/
+/**************************************************************************/
+void SensorState::UpdateRotEncSwitch(void)
+{
+  _rotEncSwitch = digitalRead(PIN_ROT_ENC_SW);
+  if (_rotEncSwitch != _prevRotEncSwitch)
+  {
+    _isScreenUpdate = true;
+    _prevRotEncSwitch = _rotEncSwitch;
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief    Store value of Rotary Encoder knob
+*/
+/**************************************************************************/
+bool SensorState::UpdateRotEnc(uint8_t newValue)
+{
+  uint8_t constrainedRotEnc;
+   
+  /* Sample Rotary Encoder Twist Knob */
+  if (_isLefty)
+  {
+    _rotEnc =  _prevRotEnc + (-1 * (newValue - _prevRotEnc));
+  }
+  else
+  {
+    _rotEnc = newValue;
+  }
+
+  constrainedRotEnc = constrain(_rotEnc, ROT_ENC_MIN, ROT_ENC_MAX);
+  if (constrainedRotEnc != _prevRotEnc)
+  {
+    _isScreenUpdate = true;
+    _prevRotEnc = constrainedRotEnc;
+    return true;
+  }
+  return false;
+}
+
+/**************************************************************************/
+/*!
+    @brief    Store value of Rotary Encoder knob
+*/
+/**************************************************************************/
+uint8_t SensorState::GetRotEncValue(void)
+{
+  return _rotEnc;
 }
 
 /**************************************************************************/
