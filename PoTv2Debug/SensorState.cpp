@@ -7,6 +7,9 @@
  #include <Wire.h>
  #include "SensorState.hpp"
 
+#define MAX_PITCH_BEND_DELTA 1700
+
+
 /**************************************************************************/
 /*!
     @brief    Create SensorState class and set variables to default values
@@ -24,7 +27,9 @@ SensorState::SensorState(void)
   _rotEnc = 0;
   _prevRotEnc = 0;
   _rotPot = 0;
+  _prevRotPot = 0;
   _ultraDist = 0;
+  _prevUltraDist = 0;
   _imuX = 0;
   _imuY = 0;
   _imuZ = 0;
@@ -132,7 +137,12 @@ void SensorState::UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2)
 /**************************************************************************/
 void SensorState::UpdateRotPot(void)
 {
-  _rotPot = analogRead(PIN_ROT_POT);
+  _rotPot = (_isLefty) ? floor(analogRead(PIN_ROT_POT) * 256.0/1024.0) :  floor((1024 - analogRead(PIN_ROT_POT)) * 128.0/1024.0);
+  if (_rotPot != _prevRotPot)
+  {
+    _isScreenUpdate = true;
+    _prevRotPot = _rotPot;
+  }  
 }
 
 /**************************************************************************/
@@ -178,6 +188,53 @@ bool SensorState::UpdateRotEnc(uint8_t newValue)
   }
   return false;
 }
+
+void SensorState::UpdateUltrasonic(uint8_t newValue)
+{
+  _ultraDist = newValue;
+  if (_ultraDist != _prevUltraDist && abs(_ultraDist - _prevUltraDist) < MAX_PITCH_BEND_DELTA)
+  {
+    _isScreenUpdate = true;
+    _prevUltraDist = _ultraDist;
+  }
+}
+
+
+/**************************************************************************/
+/*!
+    @brief    Set whether lefty mode is enabled
+*/
+/**************************************************************************/
+void SensorState::SetIsLeftyFlipped(bool isFlipped)
+{
+  _isLefty = isFlipped;
+  if (_isLefty != _prevIsLefty)
+  {
+    _isScreenUpdate = true;
+    _prevIsLefty = _isLefty;  
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief    Set whether lefty mode is enabled
+*/
+/**************************************************************************/
+void SensorState::UpdateXYZ(uint8_t x, uint8_t y, uint8_t z)
+{
+  _imuX = x;
+  _imuY = y;
+  _imuZ = z;
+
+  if ((_imuX != _prevImuX) || (_imuY != _prevImuY) || (_imuZ != _prevImuZ))
+  {
+    _isScreenUpdate = true;
+    _prevImuX = _imuX;
+    _prevImuY = _imuY;
+    _prevImuZ = _imuZ;    
+  }
+}
+
 
 /**************************************************************************/
 /*!
