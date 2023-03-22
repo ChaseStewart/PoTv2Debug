@@ -28,49 +28,31 @@
 #include <Wire.h>
 #include <Encoder.h>
 #include <NewPing.h>
+#include "BoardLayout.hpp"
 #include "QTouchBoard.hpp"
 #include "SensorState.hpp"
 #include "Ultrasonic.hpp"
 #include "MMA8452Q.hpp"
 
-#define PIN_ROT_ENC_A  7
-#define PIN_ROT_ENC_C  6
-#define PIN_ULTRA_TRIG  10
-#define PIN_ULTRA_SENS  11
-#define PIN_ROT_LEDR  2
-#define PIN_ROT_LEDG  3
-#define PIN_ROT_LEDB  5
-#define ULTRASONIC_PING_PERIOD (unsigned long) (3)
-
-#define LED_OFF    0x7 //B111
-#define LED_RED    0x6 //B110
-#define LED_GREEN  0x5 //B101
-#define LED_BLUE   0x3 //B011
-#define LED_YELLOW 0x4 //B100
-#define LED_PURPLE 0x2 //B010
-#define LED_CYAN   0x1 //B001
-#define LED_WHITE  0x0 //B000
-
-uint8_t strumStatus0, strumStatus1, strumStatus2;
-uint8_t keyStatus0, keyStatus1, keyStatus2;
-
 NewPing Ultrasonic = NewPing(PIN_ULTRA_TRIG, PIN_ULTRA_SENS, PITCH_BEND_MAX_CM+1);
 Encoder RotaryEncoder = Encoder(PIN_ROT_ENC_A, PIN_ROT_ENC_C);
-QTouchBoard fretBoard = QTouchBoard(14, 15);
-QTouchBoard strumBoard = QTouchBoard(0, 1);
+QTouchBoard fretBoard = QTouchBoard(PIN_FRET_1070_INT, PIN_FRET_2120_INT);
+QTouchBoard strumBoard = QTouchBoard(PIN_STRUM_1070_INT, PIN_STRUM_2120_INT);
 SensorState state = SensorState();
 MMA8452Q accel;
 
-
 static void pingCheck(void);
+static void RotEncSetLED(uint8_t color);
 static void RotEncStandardPattern(void);
 
-
-/* Ultrasonic Pitch Bend variables */
+// utrasonic variables
 unsigned long ping_time;
 unsigned long range_in_us;
 unsigned long range_in_cm;
 
+// QTouchBoard variables
+uint8_t strumStatus0, strumStatus1, strumStatus2;
+uint8_t keyStatus0, keyStatus1, keyStatus2;
 
 /**************************************************************************/
 /*!
@@ -80,6 +62,7 @@ unsigned long range_in_cm;
 void setup() 
 {
   Serial.begin(500000);
+  delay(1000);
   
   Serial.println("*** Paddle of Theseus Fretboard Test v2 ***");
   Serial.println();
@@ -101,7 +84,7 @@ void setup()
   pinMode(PIN_ROT_LEDR, OUTPUT); 
   RotEncStandardPattern();
 
-  delay(2000);
+  delay(1000);
 
   Serial.println();
 }
@@ -115,22 +98,21 @@ void loop()
 {
   if (fretBoard.isValueUpdate())
   {    
-    keyStatus0 = fretBoard.QT2120ReadSingleReg(3);
-    keyStatus1 = fretBoard.QT2120ReadSingleReg(4);
-    keyStatus2 = fretBoard.QT1070ReadSingleReg(3);
+    keyStatus0 = fretBoard.QT2120ReadSingleReg(REG_QT2120_KEY_STATUS_0);
+    keyStatus1 = fretBoard.QT2120ReadSingleReg(REG_QT2120_KEY_STATUS_1);
+    keyStatus2 = fretBoard.QT1070ReadSingleReg(REG_QT1070_KEY_STATUS_0);
     state.UpdateFret(keyStatus0, keyStatus1, keyStatus2);
   }
 
   if (strumBoard.isValueUpdate())
   {
-    strumStatus0 = strumBoard.QT2120ReadSingleReg(3);
-    strumStatus1 = strumBoard.QT2120ReadSingleReg(4);
-    strumStatus2 = strumBoard.QT1070ReadSingleReg(3);
+    strumStatus0 = strumBoard.QT2120ReadSingleReg(REG_QT2120_KEY_STATUS_0);
+    strumStatus1 = strumBoard.QT2120ReadSingleReg(REG_QT2120_KEY_STATUS_1);
+    strumStatus2 = strumBoard.QT1070ReadSingleReg(REG_QT1070_KEY_STATUS_0);
     state.UpdateStrumKey(strumStatus0, strumStatus1, strumStatus2);
   }
 
   state.UpdateRotPot(); 
-
   state.UpdateRotEncSwitch();
 
   // handle rotary encoder state
@@ -142,13 +124,13 @@ void loop()
   // Get Ultrasonic Distance sensor reading
   if (micros() >= ping_time)
   {
-    /* NOTE: due to using newPing timer, this has to indirectly set range_in_us */
+    // due to using newPing timer, this has to indirectly set range_in_us
     Ultrasonic.ping_timer(pingCheck);
-    range_in_cm = range_in_us / US_ROUNDTRIP_CM;
-    ping_time += ULTRASONIC_PING_PERIOD;
+    range_in_cm = range_in_us / US_ROUNDTRIP_CM; // NOTE this US_ROUNDTRIP_CM is in NewPing source code 
+    ping_time += ULTRASONIC_PING_PERIOD_MICROS;
   }
 
-  /* constrain range_in_cm, but sufficiently low values are treated as high ones */
+  // constrain range_in_cm, but sufficiently low values are treated as high ones
   if (range_in_cm < PITCH_BEND_MIN_CM || range_in_cm > PITCH_BEND_MAX_CM)
   {
     range_in_cm = PITCH_BEND_MAX_CM;
@@ -156,14 +138,14 @@ void loop()
   
   state.UpdateUltrasonic(ONEBYTE_SCALED_PITCH_BEND(range_in_cm));
 
-  /* Check Lefty Flip status */
-  accel.accel_update();
-  state.SetIsLeftyFlipped(accel.is_lefty_flipped());
+  // Check Lefty Flip status
+  accel.Update();
+  state.SetIsLeftyFlipped(accel.IsLeftyFlipped());
   state.UpdateXYZ(accel.x, accel.y, accel.z);
 
   // if any variables changed this iter, wipe and update screen
-  state.checkUpdateScreen();
-  delay(100);
+  state.CheckUpdateScreen();
+  delay(100); //
 }
 
 /**************************************************************************/
@@ -176,7 +158,13 @@ static void pingCheck(void)
   range_in_us = (Ultrasonic.check_timer()) ? Ultrasonic.ping_result : range_in_us +2;
 }
 
-
+/**************************************************************************/
+/*!
+    @brief    Set the LED on the Illuminated Rotary Encoder
+    @param    color
+              One of the color values defined in BoardLayout.hpp, a bitmap to RGB on/off    
+*/
+/**************************************************************************/
 static void RotEncSetLED(uint8_t color)
 {
   digitalWrite(PIN_ROT_LEDR, color & 0x1);
@@ -184,6 +172,11 @@ static void RotEncSetLED(uint8_t color)
   digitalWrite(PIN_ROT_LEDB, color & 0x4);
 }
 
+/**************************************************************************/
+/*!
+    @brief    Blocking function to display a sort of rainbow color pattern on Illuminated Rotary Encoder
+*/
+/**************************************************************************/
 static void RotEncStandardPattern(void)
 {
   RotEncSetLED(LED_BLUE);

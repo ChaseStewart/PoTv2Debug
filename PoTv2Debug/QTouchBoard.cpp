@@ -1,6 +1,13 @@
 /*!
  * @file QTouchBoard.cpp
  *
+ * \brief Class to control pair of capacitive touch board for fretBoard and strumBoard
+ * 
+ * These two boards mimic the affordances of a guitar using special copper capacitive-touch
+ * zones inscribed onto the PCBs and interpreted by AT42QT series QTouch sensors. Thus,
+ * the StrumBoard and FretBoard are each a "QTouch Board". The boards even have the same
+ * Bill of Materials between them, the only difference is size, count, and position of touch regions
+ * 
  * Author: Chase E. Stewart for Hidden Layer Design
  *
  */
@@ -57,11 +64,11 @@ void QTouchBoard::initQTouch()
 void QTouchBoard::_InitQT1070()
 {
   // Get Chip ID
-  uint8_t chipId = _ReadSingleReg(false, 0);
-  Serial.print("QT1070 chipId = 0x"); Serial.print(chipId, HEX); Serial.println(", should be 0x2E");
+  uint8_t chipId = _ReadSingleReg(false, REG_QT1070_CHIP_ID);
+  Serial.print("QT1070 chipId = 0x"); Serial.print(chipId, HEX); Serial.print(", should be 0x"); Serial.println(VAL_QT1070_CHIP_ID, HEX);
 
   // Get FW version
-  uint8_t versionByte = _ReadSingleReg(false, 1);
+  uint8_t versionByte = _ReadSingleReg(false, REG_QT1070_VERSION);
   uint8_t versionMajor = (versionByte & 0xF0) >> 4;
   uint8_t versionMinor = (versionByte & 0x0F);
   Serial.print("Firmware version = "); Serial.print(versionMajor); Serial.print("."); Serial.println(versionMinor);
@@ -69,12 +76,12 @@ void QTouchBoard::_InitQT1070()
   // Set touch integration
   for (int i=0; i<7; i++)
   {
-    _WriteSingleReg(false, i + OFST_QT1070_INTEGRATION_REG, 4);
-    _WriteSingleReg(false, i + OFST_QT1070_AVE_AKS_REG, 0x20);
+    _WriteSingleReg(false, i + REG_QT1070_INTEGRATION, 4); // TODO revisit these settings
+    _WriteSingleReg(false, i + REG_QT1070_AVE_AKS, 0x20); // TODO revisit these settings
   }
 
   // Set Low Power Mode
-  _WriteSingleReg(false, 54, 1);
+  _WriteSingleReg(false, 54, 1); // TODO revisit these settings
 }
 
 /**************************************************************************/
@@ -85,25 +92,25 @@ void QTouchBoard::_InitQT1070()
 void QTouchBoard::_InitQT2120()
 {
   // Get Chip ID
-  uint8_t chipId = _ReadSingleReg(true, 0);
-  Serial.print("QT2120 chipId = 0x"); Serial.print(chipId, HEX); Serial.println(", should be 0x3E");
+  uint8_t chipId = _ReadSingleReg(true, REG_QT2120_CHIP_ID);
+  Serial.print("QT2120 chipId = 0x"); Serial.print(chipId, HEX); Serial.print(", should be 0x"); Serial.println(VAL_QT2120_CHIP_ID, HEX);
 
   // Get FW version
-  uint8_t versionByte = _ReadSingleReg(true, 1);
+  uint8_t versionByte = _ReadSingleReg(true, REG_QT2120_VERSION);
   uint8_t versionMajor = (versionByte & 0xF0) >> 4;
   uint8_t versionMinor = (versionByte & 0x0F);
   Serial.print("Firmware version = "); Serial.print(versionMajor); Serial.print("."); Serial.println(versionMinor);
 
   // Set touch integration
-  _WriteSingleReg(true, 11, 4);
+  _WriteSingleReg(true, 11, 4); // TODO revisit these settings
 
   // Set drift hold time
-  _WriteSingleReg(true, 13, 3);
+  _WriteSingleReg(true, 13, 3); // TODO revisit these settings
 
   // Set detect threshold
   for (int i=0; i<12; i++)
   {
-      _WriteSingleReg(true, 16+i, 19);
+      _WriteSingleReg(true, 16+i, 19); // TODO revisit these settings
   } 
 }
 
@@ -123,12 +130,12 @@ uint8_t QTouchBoard::_ReadSingleReg(bool isQTouch2120, uint8_t reg)
   
   _i2cStream->beginTransmission(i2cAddr);
   _i2cStream->write(reg);
-  _i2cStream->endTransmission(false); //endTransmission but keep the connection active
+  _i2cStream->endTransmission(false); // endTransmission but keep the connection active
 
-  _i2cStream->requestFrom((int) i2cAddr, 1); //Ask for 1 byte, once done, bus is released by default
+  _i2cStream->requestFrom((int) i2cAddr, 1); // Ask for 1 byte, once done, bus is released by default
 
-  while(!_i2cStream->available()) ; //Wait for the data to come back
-  return _i2cStream->read(); //Return this one byte
+  while(!_i2cStream->available()) ; // Wait for the data to come back
+  return _i2cStream->read(); // Return this one byte
 }
 
 /**************************************************************************/
@@ -149,7 +156,7 @@ void QTouchBoard::_WriteSingleReg(bool isQTouch2120, uint8_t reg, uint8_t value)
   _i2cStream->beginTransmission(i2cAddr);
   _i2cStream->write(reg);
   _i2cStream->write(value);
-  _i2cStream->endTransmission(); //Stop transmitting  
+  _i2cStream->endTransmission();
 }
 
 /**************************************************************************/
@@ -160,6 +167,7 @@ void QTouchBoard::_WriteSingleReg(bool isQTouch2120, uint8_t reg, uint8_t value)
 /**************************************************************************/
 bool QTouchBoard::isValueUpdate()
 {
+  // check whether either of the QTouch pins have pulled their onChange GPIO down
   return (!digitalRead(_intPin1070) || !digitalRead(_intPin2120));
 }
 

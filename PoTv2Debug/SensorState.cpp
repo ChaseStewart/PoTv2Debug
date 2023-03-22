@@ -1,13 +1,16 @@
 /*!
  * @file SensorState.cpp
  *
+ * \brief Class to hold and update sensor values and display them over serial
+ *        As mentioned in CheckUpdateScreen's header, updating and displaying sensor values
+ *        over the serial port is the main function of this software
+ *
  * Author: Chase E. Stewart for Hidden Layer Design
  *
  */
- #include <Wire.h>
- #include "SensorState.hpp"
-
-#define MAX_PITCH_BEND_DELTA 1700
+#include <Wire.h>
+#include "SensorState.hpp"
+#include "Ultrasonic.hpp"
 
 
 /**************************************************************************/
@@ -263,14 +266,15 @@ void SensorState::_printUint8_t(uint8_t value)
 /**************************************************************************/
 /*!
     @brief    Print sensor variable state in a TUI-like format
-    This serial output is designed to be the only output on the screen
-    and provide a user interface as opposed to a logfile format.
-    The goal is to re-write this full output as quickly as possible whenever
-    a variable changes, thus providing a responsive interface that lets a user
-    benchmark the sensors by comparing printed screen values with sensor input
+    
+This serial output is designed to be the only output on the screen
+and provide a user interface as opposed to a logfile format.
+The goal is to re-write this full output as quickly as possible whenever
+a variable changes, thus providing a responsive interface that lets a user
+benchmark the sensors by comparing printed screen values with sensor input
 */
 /**************************************************************************/
-void SensorState::checkUpdateScreen(void)
+void SensorState::CheckUpdateScreen(void)
 {
   if (_isScreenUpdate)
   {

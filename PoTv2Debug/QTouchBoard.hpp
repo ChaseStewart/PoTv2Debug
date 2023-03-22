@@ -1,18 +1,34 @@
 /*!
  * @file QTouchBoard.hpp
+ * 
+ * \brief Header for class to control pair of capacitive touch board for fretBoard and strumBoard
  *
  * Author: Chase E. Stewart for Hidden Layer Design
  *
  */
-#ifndef __QTOUCHBOARD_H__
-#define __QTOUCHBOARD_H__
+#ifndef __QTOUCHBOARD_HPP__
+#define __QTOUCHBOARD_HPP__
 
 #include <Wire.h>
 
 #define QTOUCH2120_ADDR  0x1C  ///< Static I2C address for AT42QT2120 part
 #define QTOUCH1070_ADDR  0x1B  ///< Static I2C address for AT42QT2120 part
-#define OFST_QT1070_INTEGRATION_REG  46
-#define OFST_QT1070_AVE_AKS_REG  39
+
+
+#define REG_QT1070_CHIP_ID 0  ///< AT42QT1070 CHIP_ID register
+#define VAL_QT1070_CHIP_ID 0x2E ///< AT42QT1070 Expected response for reading CHIP_ID register
+#define REG_QT1070_VERSION 1  ///< AT42QT1070 VERSION register
+#define REG_QT1070_KEY_STATUS_0 3  ///< AT42QT1070 KEY_STATUS register
+
+#define REG_QT1070_INTEGRATION  46  ///< TODO figure out why this gets its own definition
+#define REG_QT1070_AVE_AKS  39  ///< TODO figure out why this gets its own definition
+
+#define REG_QT2120_CHIP_ID 0  ///< AT42QT2120 CHIP_ID register 
+#define VAL_QT2120_CHIP_ID 0x3E  ///< AT42QT2120 Expected response for reading CHIP_ID register
+#define REG_QT2120_VERSION 1  ///< AT42QT2120 VERSION register
+#define REG_QT2120_KEY_STATUS_0 3  ///< AT42QT2120 KEY_STATUS register
+#define REG_QT2120_KEY_STATUS_1 4  ///< AT42QT2120 KEY_STATUS register
+
 
 /**************************************************************************/
 /*!
@@ -47,4 +63,4 @@ class QTouchBoard
     void QT2120WriteSingleReg(uint8_t reg, uint8_t value);
 };
 
-#endif  // __QTOUCHBOARD_H__
+#endif  // __QTOUCHBOARD_HPP__

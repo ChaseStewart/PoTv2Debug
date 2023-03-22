@@ -1,19 +1,20 @@
 /*!
  * @file SensorState.hpp
  *
+ * \brief Header for class to hold and update sensor values and display them over serial
+ *
  * Author: Chase E. Stewart for Hidden Layer Design
  *
  */
-#ifndef __SENSORSTATE_H__
-#define __SENSORSTATE_H__
+#ifndef __SENSORSTATE_HPP__
+#define __SENSORSTATE_HPP__
 
 #include <stdint.h>
+#include "BoardLayout.hpp"
 
-#define PIN_ROT_ENC_SW  4  ///< Digital pin 4 for Rotary Encoder Switch
-#define PIN_ROT_POT  12  ///< Analog pin 12 for Rotary Potentiometer
 
-#define ROT_ENC_MIN 0
-#define ROT_ENC_MAX 127
+#define ROT_ENC_MIN 0  ///< Minimum value to constrain rotaryEncoder reading
+#define ROT_ENC_MAX 127  ///< Maximum value to constrain rotaryEncoder reading
 
 /**************************************************************************/
 /*!
@@ -60,9 +61,9 @@ class SensorState
     uint8_t GetRotEncValue(void);
     void UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2);
     void UpdateUltrasonic(uint8_t newValue);
-    void checkUpdateScreen(void);
+    void CheckUpdateScreen(void);
     void SetIsLeftyFlipped(bool isFlipped);
     void UpdateXYZ(uint8_t x, uint8_t y, uint8_t z);
 };
 
-#endif  // __SENSORSTATE_H__
+#endif  // __SENSORSTATE_HPP__
