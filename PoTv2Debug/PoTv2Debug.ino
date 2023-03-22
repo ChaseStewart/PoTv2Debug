@@ -26,23 +26,33 @@
  * 
  */
 #include <Wire.h>
+#include <Encoder.h>
+#include <NewPing.h>
+#include "BoardLayout.hpp"
 #include "QTouchBoard.hpp"
+#include "SensorState.hpp"
+#include "Ultrasonic.hpp"
+#include "MMA8452Q.hpp"
 
-static uint8_t GetFret(uint8_t ks0, uint8_t ks1, uint8_t ks2);
-static uint8_t GetStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2);
+NewPing Ultrasonic = NewPing(PIN_ULTRA_TRIG, PIN_ULTRA_SENS, PITCH_BEND_MAX_CM+1);
+Encoder RotaryEncoder = Encoder(PIN_ROT_ENC_A, PIN_ROT_ENC_C);
+QTouchBoard fretBoard = QTouchBoard(PIN_FRET_1070_INT, PIN_FRET_2120_INT);
+QTouchBoard strumBoard = QTouchBoard(PIN_STRUM_1070_INT, PIN_STRUM_2120_INT);
+SensorState state = SensorState();
+MMA8452Q accel;
 
-uint8_t fret;  ///< The highest currently-pressed fret, mimics a guitar fretboard
-uint8_t prevFret;
+static void pingCheck(void);
+static void RotEncSetLED(uint8_t color);
+static void RotEncStandardPattern(void);
+
+// utrasonic variables
+unsigned long ping_time;
+unsigned long range_in_us;
+unsigned long range_in_cm;
+
+// QTouchBoard variables
 uint8_t strumStatus0, strumStatus1, strumStatus2;
-
-uint16_t key;  ///< Bitfield of the key or keys that have been pressed 
-uint16_t prevKey;
 uint8_t keyStatus0, keyStatus1, keyStatus2;
-
-bool screenUpdate;  ///< when True, update the serial screen with current variable values 
-
-QTouchBoard fretBoard = QTouchBoard(14, 15);
-QTouchBoard strumBoard = QTouchBoard(0, 1);
 
 /**************************************************************************/
 /*!
@@ -51,7 +61,8 @@ QTouchBoard strumBoard = QTouchBoard(0, 1);
 /**************************************************************************/
 void setup() 
 {
-  Serial.begin(115200);
+  Serial.begin(500000);
+  delay(1000);
   
   Serial.println("*** Paddle of Theseus Fretboard Test v2 ***");
   Serial.println();
@@ -66,8 +77,14 @@ void setup()
   strumBoard.begin(Wire1);
   Serial.println("*** Done ***");
 
-  delay(2000);
-  fret = 0;
+  accel.init();
+
+  pinMode(PIN_ROT_LEDB, OUTPUT);
+  pinMode(PIN_ROT_LEDG, OUTPUT);
+  pinMode(PIN_ROT_LEDR, OUTPUT); 
+  RotEncStandardPattern();
+
+  delay(1000);
 
   Serial.println();
 }
@@ -81,128 +98,99 @@ void loop()
 {
   if (fretBoard.isValueUpdate())
   {    
-    keyStatus0 = fretBoard.QT2120ReadSingleReg(3);
-    keyStatus1 = fretBoard.QT2120ReadSingleReg(4);
-    keyStatus2 = fretBoard.QT1070ReadSingleReg(3);
-    fret = GetFret(keyStatus0, keyStatus1, keyStatus2);
-    if (prevFret != fret)
-    {
-      screenUpdate = true;
-    }
-    prevFret = fret;
+    keyStatus0 = fretBoard.QT2120ReadSingleReg(REG_QT2120_KEY_STATUS_0);
+    keyStatus1 = fretBoard.QT2120ReadSingleReg(REG_QT2120_KEY_STATUS_1);
+    keyStatus2 = fretBoard.QT1070ReadSingleReg(REG_QT1070_KEY_STATUS_0);
+    state.UpdateFret(keyStatus0, keyStatus1, keyStatus2);
   }
 
   if (strumBoard.isValueUpdate())
   {
-    strumStatus0 = strumBoard.QT2120ReadSingleReg(3);
-    strumStatus1 = strumBoard.QT2120ReadSingleReg(4);
-    strumStatus2 = strumBoard.QT1070ReadSingleReg(3);
-    key = GetStrumKey(strumStatus0, strumStatus1, strumStatus2);
-    if (prevKey != key)
-    {
-      screenUpdate = true;
-    }
-    prevKey = key;
+    strumStatus0 = strumBoard.QT2120ReadSingleReg(REG_QT2120_KEY_STATUS_0);
+    strumStatus1 = strumBoard.QT2120ReadSingleReg(REG_QT2120_KEY_STATUS_1);
+    strumStatus2 = strumBoard.QT1070ReadSingleReg(REG_QT1070_KEY_STATUS_0);
+    state.UpdateStrumKey(strumStatus0, strumStatus1, strumStatus2);
   }
+
+  state.UpdateRotPot(); 
+  state.UpdateRotEncSwitch();
+
+  // handle rotary encoder state
+  if (state.UpdateRotEnc(RotaryEncoder.read()))
+  {
+    RotaryEncoder.write(state.GetRotEncValue());
+  }
+
+  // Get Ultrasonic Distance sensor reading
+  if (micros() >= ping_time)
+  {
+    // due to using newPing timer, this has to indirectly set range_in_us
+    Ultrasonic.ping_timer(pingCheck);
+    range_in_cm = range_in_us / US_ROUNDTRIP_CM; // NOTE this US_ROUNDTRIP_CM is in NewPing source code 
+    ping_time += ULTRASONIC_PING_PERIOD_MICROS;
+  }
+
+  // constrain range_in_cm, but sufficiently low values are treated as high ones
+  if (range_in_cm < PITCH_BEND_MIN_CM || range_in_cm > PITCH_BEND_MAX_CM)
+  {
+    range_in_cm = PITCH_BEND_MAX_CM;
+  }
+  
+  state.UpdateUltrasonic(ONEBYTE_SCALED_PITCH_BEND(range_in_cm));
+
+  // Check Lefty Flip status
+  accel.Update();
+  state.SetIsLeftyFlipped(accel.IsLeftyFlipped());
+  state.UpdateXYZ(accel.x, accel.y, accel.z);
 
   // if any variables changed this iter, wipe and update screen
-  if (screenUpdate)
-  {
-    screenUpdate = false;
-    Serial.print('\f');
-    Serial.println("*** Paddle of Theseus Fretboard Test v2 ***");
-    Serial.print("Strum=");    Serial.print(key, HEX); 
-    Serial.print(", ss2=0x"); Serial.println(strumStatus2, HEX);
-    Serial.print(", ss1=0x"); Serial.print(strumStatus1, HEX);
-    Serial.print(", ss0=0x"); Serial.print(strumStatus0, HEX); 
-    Serial.println();
-
-    Serial.print("Fret=");    Serial.print(fret); 
-    Serial.print(", ks2=0x"); Serial.println(keyStatus2, HEX);  
-    Serial.print(", ks1=0x"); Serial.print(keyStatus1, HEX);
-    Serial.print(", ks0=0x"); Serial.print(keyStatus0, HEX); 
-  }
-}
-
-
-/**************************************************************************/
-/*!
-    @brief    Return the set of keys currently pressed, if any
-    @param    ss0
-              Output of AT42QT2120 status register LSB
-    @param    ss1
-              Output of AT42QT2120 status register MSB 
-    @param    ss2
-              Output of AT42QT1070 status register 
-    @return   integer strum value representing the key or keys currently pressed, if any
-*/
-/**************************************************************************/
-static uint8_t GetStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2)
-{
-  uint8_t result = 0;
-
-  if (ss2 >> 3)
-  {
-    result |= 0x1;
-  }
-  if (((ss0 >> 5) & 0x0F) || (ss1 & 0x01))
-  {
-    result |= 0x2;
-  } 
-  if ((ss0 >> 1) & 0x0F)
-  {
-    result |= 0x4;
-  } 
-  if (((ss1 >> 1) & 0x0E) || (ss0 & 0x01))
-  {
-    result |= 0x8;
-  } 
-  return result;
+  state.CheckUpdateScreen();
+  delay(100); //
 }
 
 /**************************************************************************/
 /*!
-    @brief    Return the highest fret currently pressed
-    @param    ks0
-              Output of AT42QT2120 status register LSB
-    @param    ks1
-              Output of AT42QT2120 status register MSB 
-    @param    ks2
-              Output of AT42QT1070 status register 
-    @return   integer fret value representing the highest fret currently pressed
+    @brief    Callback function to check whether ultrasonic sonar has returned data
 */
 /**************************************************************************/
-static uint8_t GetFret(uint8_t ks0, uint8_t ks1, uint8_t ks2)
+static void pingCheck(void)
 {
-  // Efficiently check FretBoard status registers for highest pressed fret
-  if (ks2)
-  {
-    if (ks2 & 0x40) return 19;
-    else if (ks2 & 0x20) return 18;
-    else if (ks2 & 0x10) return 17;
-    else if (ks2 & 0x08) return 16;
-    else if (ks2 & 0x04) return 15;
-    else if (ks2 & 0x02) return 14;
-    else if (ks2 & 0x01) return 13;
-  }
-  if (ks1)
-  {
-    if      (ks1 & 0x08) return 12;
-    else if (ks1 & 0x04) return 11;
-    else if (ks1 & 0x02) return 10;
-    else if (ks1 & 0x01) return 9;
-  }
-  if (ks0)
-  {
-    if (ks0 & 0x80) return 8;
-    else if (ks0 & 0x40) return 7;
-    else if (ks0 & 0x20) return 6;
-    else if (ks0 & 0x10) return 5;
-    else if (ks0 & 0x08) return 4;
-    else if (ks0 & 0x04) return 3;
-    else if (ks0 & 0x02) return 2;
-    else if (ks0 & 0x01) return 1;
-    else return 0;
-  }
-  return 0;
+  range_in_us = (Ultrasonic.check_timer()) ? Ultrasonic.ping_result : range_in_us +2;
+}
+
+/**************************************************************************/
+/*!
+    @brief    Set the LED on the Illuminated Rotary Encoder
+    @param    color
+              One of the color values defined in BoardLayout.hpp, a bitmap to RGB on/off    
+*/
+/**************************************************************************/
+static void RotEncSetLED(uint8_t color)
+{
+  digitalWrite(PIN_ROT_LEDR, color & 0x1);
+  digitalWrite(PIN_ROT_LEDG, color & 0x2);
+  digitalWrite(PIN_ROT_LEDB, color & 0x4);
+}
+
+/**************************************************************************/
+/*!
+    @brief    Blocking function to display a sort of rainbow color pattern on Illuminated Rotary Encoder
+*/
+/**************************************************************************/
+static void RotEncStandardPattern(void)
+{
+  RotEncSetLED(LED_BLUE);
+  delay(500);  
+  RotEncSetLED(LED_PURPLE);
+  delay(500);  
+  RotEncSetLED(LED_GREEN);
+  delay(500);  
+  RotEncSetLED(LED_CYAN);
+  delay(500);  
+  RotEncSetLED(LED_RED);
+  delay(500);  
+  RotEncSetLED(LED_YELLOW);
+  delay(500);  
+  RotEncSetLED(LED_WHITE);
+  delay(2000);  
 }
