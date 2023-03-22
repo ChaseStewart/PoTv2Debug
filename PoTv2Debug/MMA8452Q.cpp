@@ -1,7 +1,7 @@
 /*!
- * @file MMA8452Q.hpp
+ * \file MMA8452Q.cpp
  *
- * \brief 6DOF IMU class used to get isLefty, originally written by SparkFun
+ * \brief IMU class used to get isLefty, originally written by SparkFun
  *
  * NOTE: this code has been edited from the below, original Sparkfun header starts from
  * second set of asterisks!
@@ -13,7 +13,7 @@
 /******************************************************************************
 SparkFun_MMA8452Q.cpp
 SparkFun_MMA8452Q Library Source File
-Jim Lindblom @ SparkFun Electronics
+Jim Lindblom \ SparkFun Electronics
 Original Creation Date: June 3, 2014
 https://github.com/sparkfun/MMA8452_Accelerometer
 This file implements all functions of the MMA8452Q class. Functions here range
@@ -42,7 +42,7 @@ static void MMA8452Active(void);
 
 /**************************************************************************/
 /*!
-    @brief  Instantiate MMA8452Q class and set slave address
+    \brief  Instantiate MMA8452Q class and set slave address
 */
 /**************************************************************************/
 MMA8452Q::MMA8452Q(void)
@@ -55,8 +55,8 @@ MMA8452Q::MMA8452Q(void)
 
 /**************************************************************************/
 /*!
-    @brief  Test and set up the IMU
-    @return 0 == failure, else 1
+    \brief  Test and set up the IMU
+    \return 0 == failure, else 1
 */
 /**************************************************************************/
 int8_t MMA8452Q::init(void)
@@ -89,10 +89,9 @@ int8_t MMA8452Q::init(void)
 
 /**************************************************************************/
 /*! 
-    @brief  Update the accelerometer values, store them in class vars x,y,z 
+    \brief  Update the accelerometer values, store them in class vars x,y,z 
  */
 /**************************************************************************/
- 
 void MMA8452Q::Update(void)
 {
   byte rawData[6];  // x/y/z accel register data stored here
@@ -107,7 +106,7 @@ void MMA8452Q::Update(void)
 
 /**************************************************************************/
 /*!
-    @brief  Print current IMU x,y,z as a float
+    \brief  Print current IMU x,y,z as a float
 */
 /**************************************************************************/
 void MMA8452Q::PrintAccel(void)
@@ -122,11 +121,11 @@ void MMA8452Q::PrintAccel(void)
 
 /**************************************************************************/
 /*!
-    @brief  Return whether paddle is physically lefty-flipped
+    \brief  Return whether paddle is physically lefty-flipped
     accelerometer value of (x < 0) implies a left-handed person
     is using the instrument
     
-    @return bool True == The paddle is lefty flipped, else False
+    \return bool True == The paddle is lefty flipped, else False
 */
 /**************************************************************************/
 bool MMA8452Q::IsLeftyFlipped(void)
@@ -137,10 +136,10 @@ bool MMA8452Q::IsLeftyFlipped(void)
 
 /**************************************************************************/
 /*!
-    @brief  Read a single byte from addressToRead and return it as a byte
-    @param  addressToRead 
+    \brief  Read a single byte from addressToRead and return it as a byte
+    \param  addressToRead 
             The address of the register to read
-    @return byte Value returned from register
+    \return byte Value returned from register
 */
 /**************************************************************************/
 static byte readRegister(byte addressToRead)
@@ -157,12 +156,12 @@ static byte readRegister(byte addressToRead)
 
 /**************************************************************************/
 /*!
-    @brief  Read bytesToRead sequentially, starting at addressToRead into the dest byte array
-    @param  addressToRead 
+    \brief  Read bytesToRead sequentially, starting at addressToRead into the dest byte array
+    \param  addressToRead 
             the address of the register to read
-    @param  bytesToRead 
+    \param  bytesToRead 
             count of bytes to read
-    @param  dest 
+    \param  dest 
             pointer to the destination buffer for data
 */
 /**************************************************************************/
@@ -184,10 +183,10 @@ static void readRegisters(byte addressToRead, int bytesToRead, byte * dest)
 
 /**************************************************************************/
 /*!
-    @brief  Writes a single byte (dataToWrite) into addressToWrite
-    @param  addressToWrite
+    \brief  Writes a single byte (dataToWrite) into addressToWrite
+    \param  addressToWrite
             the address of the register to be written into
-    @param  dataToWrite 
+    \param  dataToWrite 
             byte of data to be written
 */
 /**************************************************************************/
@@ -201,7 +200,7 @@ static void writeRegister(byte addressToWrite, byte dataToWrite)
 
 /**************************************************************************/
 /*!
-    @brief  set MMA8452Q into standby mode
+    \brief  set MMA8452Q into standby mode
     The chip must be in standby to change most register settings
 */
 /**************************************************************************/
@@ -213,7 +212,7 @@ static void MMA8452Standby(void)
 
 /**************************************************************************/
 /*!
-    @brief  set MMA8452Q into active mode
+    \brief  set MMA8452Q into active mode
     The chip must be in active mode to update and output data
 */
 /**************************************************************************/

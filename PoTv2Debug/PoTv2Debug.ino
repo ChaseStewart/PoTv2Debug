@@ -1,30 +1,31 @@
 /*!
- * @file PoTv2Debug.ino
+ * \file PoTv2Debug.ino
  *
- * @mainpage Paddle of Theseus v2 Debug TUI for serial connection
+ * \mainpage Paddle of Theseus v2 Debug TUI for serial connection
  *
- * @section intro_sec Introduction
+ * \section intro_sec Introduction
  *
- * This is the documentation for the Paddle of Theseus v2 Debug tool 
+ * This is the documentation for the Paddle of Theseus v2 Debug tool. 
  * It allows a user to verify proper sensing of Paddle v2 inputs using 
- * a serial connection to the Teensy at 115200 baud.
+ * a serial connection to the Teensy at 500,000 baud.
  *
- * @section requirements Requirements
- *
- * This software requires a full hardware Paddle of Theseus v2 <a
- * href="https://github.com/arduino-libraries/ArduinoHttpClient">
- * and also if a Teensy LC is used, requires modifications to 
- * the Arduino hardware library file WireKinetis.h for the Teensy Hardware
- * in order to enable Wire1. See https://github.com/ChaseStewart/PoTv2Debug#readme
- * for more details.
- *
- * @section author Author
+ * \section author Author
  *
  * Written by <a href="https://chasestewart.co"> 
  * Chase E. Stewart</a> for <a href="https://hiddenlayerdesign.com">
  * Hidden Layer Design</a>
+
+ *
+ * \section requirements Requirements
+ *
+ * This software requires a full hardware Paddle of Theseus v2
+ * and also if a Teensy LC is used, requires modifications to 
+ * the Arduino hardware library file WireKinetis.h for the Teensy Hardware
+ * in order to enable Wire1. See https://github.com/ChaseStewart/PoTv2Debug#readme
+ * for more details.
  * 
  */
+#include <Arduino.h>
 #include <Wire.h>
 #include <Encoder.h>
 #include <NewPing.h>
@@ -46,9 +47,9 @@ static void RotEncSetLED(uint8_t color);
 static void RotEncStandardPattern(void);
 
 // utrasonic variables
-unsigned long ping_time;
-unsigned long range_in_us;
-unsigned long range_in_cm;
+unsigned long ping_time;  ///< Counter to tell NewPing to record sensor reading again
+unsigned long range_in_us;  ///< NewPing result in format of round-trip time in microseconds
+unsigned long range_in_cm;  ///< NewPing result in format of centimeters
 
 // QTouchBoard variables
 uint8_t strumStatus0, strumStatus1, strumStatus2;
@@ -56,7 +57,7 @@ uint8_t keyStatus0, keyStatus1, keyStatus2;
 
 /**************************************************************************/
 /*!
-    @brief    Instantiate Serial connection and setup hardware and ports/pins
+    \brief    Instantiate Serial connection and setup hardware and ports/pins
 */
 /**************************************************************************/
 void setup() 
@@ -91,7 +92,7 @@ void setup()
 
 /**************************************************************************/
 /*!
-    @brief    Poll sensors, detect changes, and update Serial UI when variables update
+    \brief    Poll sensors, detect changes, and update Serial UI when variables update
 */
 /**************************************************************************/
 void loop()
@@ -150,7 +151,7 @@ void loop()
 
 /**************************************************************************/
 /*!
-    @brief    Callback function to check whether ultrasonic sonar has returned data
+    \brief    Callback function to check whether ultrasonic sonar has returned data
 */
 /**************************************************************************/
 static void pingCheck(void)
@@ -160,8 +161,8 @@ static void pingCheck(void)
 
 /**************************************************************************/
 /*!
-    @brief    Set the LED on the Illuminated Rotary Encoder
-    @param    color
+    \brief    Set the LED on the Illuminated Rotary Encoder
+    \param    color
               One of the color values defined in BoardLayout.hpp, a bitmap to RGB on/off    
 */
 /**************************************************************************/
@@ -174,7 +175,7 @@ static void RotEncSetLED(uint8_t color)
 
 /**************************************************************************/
 /*!
-    @brief    Blocking function to display a sort of rainbow color pattern on Illuminated Rotary Encoder
+    \brief    Blocking function to display a sort of rainbow color pattern on Illuminated Rotary Encoder
 */
 /**************************************************************************/
 static void RotEncStandardPattern(void)

@@ -1,5 +1,5 @@
 /*!
- * @file SensorState.hpp
+ * \file SensorState.hpp
  *
  * \brief Header for class to hold and update sensor values and display them over serial
  *
@@ -18,7 +18,7 @@
 
 /**************************************************************************/
 /*!
-    @brief  Class to keep and display all sensor values
+    \brief  Class to keep and display all sensor values
     Displaying sensor values is the primary goal of this project, so
     the data conversions and checking for new values can be abstracted into
     this class rather than busying up the main loop with globals and logic
@@ -26,7 +26,7 @@
 /**************************************************************************/
 class SensorState 
 {
-  // TODO turn this giant list of member vars to a pair of current/ prev structs
+  ///< \todo turn this giant list of member vars to a pair of current/ prev structs
   private:
     uint8_t _fret;  ///< Number of fret currently pressed
     uint8_t _prevFret;  ///< Number of fret pressed last loop iter

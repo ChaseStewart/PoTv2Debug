@@ -1,0 +1,12 @@
+digraph "PoTv2Debug/MMA8452Q.hpp"
+{
+ // LATEX_PDF_SIZE
+  bgcolor="transparent";
+  edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
+  node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
+  Node1 [label="PoTv2Debug/MMA8452Q.hpp",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="6DOF IMU class used to get isLefty, originally written by SparkFun"];
+  Node1 -> Node2 [dir="back",color="steelblue1",style="solid"];
+  Node2 [label="PoTv2Debug/MMA8452Q.cpp",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$_m_m_a8452_q_8cpp.html",tooltip=" "];
+  Node1 -> Node3 [dir="back",color="steelblue1",style="solid"];
+  Node3 [label="PoTv2Debug/PoTv2Debug.ino",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$_po_tv2_debug_8ino.html",tooltip=" "];
+}

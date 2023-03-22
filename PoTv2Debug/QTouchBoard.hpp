@@ -1,5 +1,5 @@
 /*!
- * @file QTouchBoard.hpp
+ * \file QTouchBoard.hpp
  * 
  * \brief Header for class to control pair of capacitive touch board for fretBoard and strumBoard
  *
@@ -20,8 +20,8 @@
 #define REG_QT1070_VERSION 1  ///< AT42QT1070 VERSION register
 #define REG_QT1070_KEY_STATUS_0 3  ///< AT42QT1070 KEY_STATUS register
 
-#define REG_QT1070_INTEGRATION  46  ///< TODO figure out why this gets its own definition
-#define REG_QT1070_AVE_AKS  39  ///< TODO figure out why this gets its own definition
+#define REG_QT1070_INTEGRATION  46  ///< \todo figure out why this gets its own definition
+#define REG_QT1070_AVE_AKS  39  ///< \todo figure out why this gets its own definition
 
 #define REG_QT2120_CHIP_ID 0  ///< AT42QT2120 CHIP_ID register 
 #define VAL_QT2120_CHIP_ID 0x3E  ///< AT42QT2120 Expected response for reading CHIP_ID register
@@ -32,7 +32,7 @@
 
 /**************************************************************************/
 /*!
-    @brief  Class for interacting with QTouch I2C devices
+    \brief  Class for interacting with QTouch I2C devices
     This class interfaces with the HiddenLayerDesign custom QTouch-powered I2C 
     boards on Wire and Wire1 used for the FretBoard and StrumBoard. 
     Despite their unique layouts, the schematics and partlists of the two boards 

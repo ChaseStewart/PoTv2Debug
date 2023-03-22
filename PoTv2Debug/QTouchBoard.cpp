@@ -1,5 +1,5 @@
 /*!
- * @file QTouchBoard.cpp
+ * \file QTouchBoard.cpp
  *
  * \brief Class to control pair of capacitive touch board for fretBoard and strumBoard
  * 
@@ -15,11 +15,11 @@
 
 /**************************************************************************/
 /*!
-    @brief    Creates QTouchBoard connected to one of the two I2c instances and sets up chips
-    @param    *inStream
-              Reference to one of the I2C TwoWire streams, Wire or Wire1
-    @param    initChips
-              True == Initialize the AT42QT2120 and AT42QT1070 over I2C, else False
+    \brief    Creates QTouchBoard connected to one of the two I2c instances and sets up chips
+    \param    int1070
+              Teensy IO pin for AT42QT1070 GPIO interrupt on value change
+    \param    int2120
+              Teensy IO pin for AT42QT2120 GPIO interrupt on value change
 */
 /**************************************************************************/
 QTouchBoard::QTouchBoard(int int1070, int int2120)
@@ -34,7 +34,9 @@ QTouchBoard::QTouchBoard(int int1070, int int2120)
 
 /**************************************************************************/
 /*!
-    @brief    Take in initialized TwoWire object and add it to the QTouchBoard
+    \brief    Take in initialized TwoWire object and add it to the QTouchBoard
+    \param    &inStream
+              An I2C TwoWire object to control I2C messaging, one of {Wire, Wire1}
 */
 /**************************************************************************/
 void QTouchBoard::begin(TwoWire &inStream)
@@ -47,7 +49,7 @@ QTouchBoard::~QTouchBoard() { }
 
 /**************************************************************************/
 /*!
-    @brief    Creates QTouchBoard and initializes pins
+    \brief    Creates QTouchBoard and initializes pins
 */
 /**************************************************************************/
 void QTouchBoard::initQTouch()
@@ -58,7 +60,7 @@ void QTouchBoard::initQTouch()
 
 /**************************************************************************/
 /*!
-    @brief    Initialize the register settings for the AT42QT1070
+    \brief    Initialize the register settings for the AT42QT1070
 */
 /**************************************************************************/
 void QTouchBoard::_InitQT1070()
@@ -76,17 +78,17 @@ void QTouchBoard::_InitQT1070()
   // Set touch integration
   for (int i=0; i<7; i++)
   {
-    _WriteSingleReg(false, i + REG_QT1070_INTEGRATION, 4); // TODO revisit these settings
-    _WriteSingleReg(false, i + REG_QT1070_AVE_AKS, 0x20); // TODO revisit these settings
+    _WriteSingleReg(false, i + REG_QT1070_INTEGRATION, 4); ///< \todo revisit these AT42QT1070 init settings
+    _WriteSingleReg(false, i + REG_QT1070_AVE_AKS, 0x20); ///< \todo  revisit these AT42QT1070 init settings
   }
 
   // Set Low Power Mode
-  _WriteSingleReg(false, 54, 1); // TODO revisit these settings
+  _WriteSingleReg(false, 54, 1);///< \todo  revisit these AT42QT1070 init settings
 }
 
 /**************************************************************************/
 /*!
-    @brief    Initialize the register settings for the AT42QT2120
+    \brief    Initialize the register settings for the AT42QT2120
 */
 /**************************************************************************/
 void QTouchBoard::_InitQT2120()
@@ -102,26 +104,27 @@ void QTouchBoard::_InitQT2120()
   Serial.print("Firmware version = "); Serial.print(versionMajor); Serial.print("."); Serial.println(versionMinor);
 
   // Set touch integration
-  _WriteSingleReg(true, 11, 4); // TODO revisit these settings
+  _WriteSingleReg(true, 11, 4); ///< \todo revisit these AT42QT2120 init settings
 
   // Set drift hold time
-  _WriteSingleReg(true, 13, 3); // TODO revisit these settings
+  _WriteSingleReg(true, 13, 3); ///< \todo revisit these AT42QT2120 init settings
+
 
   // Set detect threshold
   for (int i=0; i<12; i++)
   {
-      _WriteSingleReg(true, 16+i, 19); // TODO revisit these settings
+      _WriteSingleReg(true, 16+i, 19); ///< \todo revisit these AT42QT2120 init settings
   } 
 }
 
 /**************************************************************************/
 /*!
-    @brief    Read a single AT42QTx register and return single byte of data
-    @param    isQTouch2120
+    \brief    Read a single AT42QTx register and return single byte of data
+    \param    isQTouch2120
               True to communicate with QTOUCH2120_ADDR, else communicate with QTOUCH1070_ADDR 
-    @param    reg
+    \param    reg
               Register address to read
-    @return   Value returned from I2C device at register address reg    
+    \return   Value returned from I2C device at register address reg    
 */
 /**************************************************************************/
 uint8_t QTouchBoard::_ReadSingleReg(bool isQTouch2120, uint8_t reg)
@@ -140,12 +143,12 @@ uint8_t QTouchBoard::_ReadSingleReg(bool isQTouch2120, uint8_t reg)
 
 /**************************************************************************/
 /*!
-    @brief    Write a single byte value to selected AT42QTx register reg
-    @param    isQTouch2120
+    \brief    Write a single byte value to selected AT42QTx register reg
+    \param    isQTouch2120
               True to communicate with QTOUCH2120_ADDR, else communicate with QTOUCH1070_ADDR 
-    @param    reg
+    \param    reg
               Register address to write to
-    @param    value
+    \param    value
               Value to be written    
 */
 /**************************************************************************/
@@ -161,8 +164,8 @@ void QTouchBoard::_WriteSingleReg(bool isQTouch2120, uint8_t reg, uint8_t value)
 
 /**************************************************************************/
 /*!
-    @brief    Check whether this QTouchBoard has any new values
-    @return   True if at least one of the update GPIO interrupt pins fired
+    \brief    Check whether this QTouchBoard has any new values
+    \return   True if at least one of the update GPIO interrupt pins fired
 */
 /**************************************************************************/
 bool QTouchBoard::isValueUpdate()
@@ -173,7 +176,10 @@ bool QTouchBoard::isValueUpdate()
 
 /**************************************************************************/
 /*!
-    @brief    Alias for reading register of QT2120
+    \brief    Alias for reading register of QT2120
+    \param    reg
+              Register address to be read
+    \return   Value retrieved from AT42QT2120 at register address
 */
 /**************************************************************************/
 uint8_t QTouchBoard::QT2120ReadSingleReg(uint8_t reg)
@@ -183,7 +189,10 @@ uint8_t QTouchBoard::QT2120ReadSingleReg(uint8_t reg)
 
 /**************************************************************************/
 /*!
-    @brief    Alias for reading register of QT1070
+    \brief    Alias for reading register of QT1070
+    \param    reg
+              Register address to be read
+    \return   Value retrieved from AT42QT1070 at register address
 */
 /**************************************************************************/
 uint8_t QTouchBoard::QT1070ReadSingleReg(uint8_t reg)
@@ -193,7 +202,11 @@ uint8_t QTouchBoard::QT1070ReadSingleReg(uint8_t reg)
 
 /**************************************************************************/
 /*!
-    @brief    Alias for writing register of QT2120
+    \brief    Alias for writing register of QT2120
+    \param    reg
+              Register address to be be written into
+    \param    value
+              Value to be written
 */
 /**************************************************************************/
 void QTouchBoard::QT2120WriteSingleReg(uint8_t reg, uint8_t value)
@@ -203,7 +216,11 @@ void QTouchBoard::QT2120WriteSingleReg(uint8_t reg, uint8_t value)
 
 /**************************************************************************/
 /*!
-    @brief    Alias for writing register of QT1070
+    \brief    Alias for writing register of QT1070
+    \param    reg
+              Register address to be be written into
+    \param    value
+              Value to be written
 */
 /**************************************************************************/
 void QTouchBoard::QT1070WriteSingleReg(uint8_t reg, uint8_t value)

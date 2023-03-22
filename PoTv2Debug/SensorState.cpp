@@ -1,9 +1,10 @@
 /*!
- * @file SensorState.cpp
+ * \file SensorState.cpp
  *
  * \brief Class to hold and update sensor values and display them over serial
- *        As mentioned in CheckUpdateScreen's header, updating and displaying sensor values
- *        over the serial port is the main function of this software
+ * 
+ * As mentioned in CheckUpdateScreen's header, updating and displaying sensor values
+ * over the serial port is the main function of this software
  *
  * Author: Chase E. Stewart for Hidden Layer Design
  *
@@ -15,7 +16,7 @@
 
 /**************************************************************************/
 /*!
-    @brief    Create SensorState class and set variables to default values
+    \brief    Create SensorState class and set variables to default values
 */
 /**************************************************************************/
 SensorState::SensorState(void)
@@ -44,12 +45,12 @@ SensorState::SensorState(void)
 
  /**************************************************************************/
 /*!
-    @brief    Update _fret member with the highest fret currently pressed
-    @param    ks0
+    \brief    Update _fret member with the highest fret currently pressed
+    \param    ks0
               Output of AT42QT2120 status register LSB
-    @param    ks1
+    \param    ks1
               Output of AT42QT2120 status register MSB 
-    @param    ks2
+    \param    ks2
               Output of AT42QT1070 status register 
 */
 /**************************************************************************/
@@ -96,12 +97,12 @@ void SensorState::UpdateFret(uint8_t ks0, uint8_t ks1, uint8_t ks2)
 
 /**************************************************************************/
 /*!
-    @brief    Update _key member with the set of keys currently pressed, if any
-    @param    ss0
+    \brief    Update _key member with the set of keys currently pressed, if any
+    \param    ss0
               Output of AT42QT2120 status register LSB
-    @param    ss1
+    \param    ss1
               Output of AT42QT2120 status register MSB 
-    @param    ss2
+    \param    ss2
               Output of AT42QT1070 status register 
 */
 /**************************************************************************/
@@ -135,7 +136,7 @@ void SensorState::UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2)
 
 /**************************************************************************/
 /*!
-    @brief    Read voltage val of rotary potentiometer and store value
+    \brief    Read voltage val of rotary potentiometer and store value
 */
 /**************************************************************************/
 void SensorState::UpdateRotPot(void)
@@ -150,7 +151,7 @@ void SensorState::UpdateRotPot(void)
 
 /**************************************************************************/
 /*!
-    @brief    Store value of Rotary Encoder switch
+    \brief    Store value of Rotary Encoder switch
 */
 /**************************************************************************/
 void SensorState::UpdateRotEncSwitch(void)
@@ -165,7 +166,10 @@ void SensorState::UpdateRotEncSwitch(void)
 
 /**************************************************************************/
 /*!
-    @brief    Store value of Rotary Encoder knob
+    \brief    Store value of Rotary Encoder knob
+    \param    newValue
+              The new value of the Rotary Encoder
+    \return   True if new value should be written to Encoder object, else False
 */
 /**************************************************************************/
 bool SensorState::UpdateRotEnc(uint8_t newValue)
@@ -205,7 +209,9 @@ void SensorState::UpdateUltrasonic(uint8_t newValue)
 
 /**************************************************************************/
 /*!
-    @brief    Set whether lefty mode is enabled
+    \brief    Set whether lefty mode is enabled
+    \param    isFlipped
+              Current value of isLefty, True if lefty mode should be enabled per IMU
 */
 /**************************************************************************/
 void SensorState::SetIsLeftyFlipped(bool isFlipped)
@@ -220,7 +226,13 @@ void SensorState::SetIsLeftyFlipped(bool isFlipped)
 
 /**************************************************************************/
 /*!
-    @brief    Set whether lefty mode is enabled
+    \brief    Set whether lefty mode is enabled
+    \param    x
+              X-Axis reading from IMU
+    \param    y
+              Y-Axis reading from IMU
+    \param    z
+              Z-Axis reading from IMU
 */
 /**************************************************************************/
 void SensorState::UpdateXYZ(uint8_t x, uint8_t y, uint8_t z)
@@ -241,7 +253,8 @@ void SensorState::UpdateXYZ(uint8_t x, uint8_t y, uint8_t z)
 
 /**************************************************************************/
 /*!
-    @brief    Store value of Rotary Encoder knob
+    \brief    Return value of Rotary Encoder knob
+    \return   Current value of Rotary Encoder according to this class
 */
 /**************************************************************************/
 uint8_t SensorState::GetRotEncValue(void)
@@ -251,8 +264,8 @@ uint8_t SensorState::GetRotEncValue(void)
 
 /**************************************************************************/
 /*!
-    @brief    Convenience function equivalent of %02u
-    @param    value
+    \brief    Convenience function equivalent of %02u
+    \param    value
               byte integer to print 
 */
 /**************************************************************************/
@@ -265,7 +278,7 @@ void SensorState::_printUint8_t(uint8_t value)
 
 /**************************************************************************/
 /*!
-    @brief    Print sensor variable state in a TUI-like format
+    \brief    Print sensor variable state in a TUI-like format
     
 This serial output is designed to be the only output on the screen
 and provide a user interface as opposed to a logfile format.

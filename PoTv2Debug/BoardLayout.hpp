@@ -1,5 +1,5 @@
 /*!
- * @file BoardLayout.hpp
+ * \file BoardLayout.hpp
  *
  * \brief Capture board pinout and physical constants for project
  *         

@@ -1,5 +1,5 @@
 /*!
- * @file MMA8452Q.hpp
+ * \file MMA8452Q.hpp
  *
  * \brief Header for 6DOF IMU class used to get isLefty
  *
@@ -27,7 +27,7 @@
 
 /**************************************************************************/
 /*!
-    @brief  Class for interacting with the MMA8452Q IMU
+    \brief  Class for interacting with the MMA8452Q IMU
     This class provides just what is needed to get isLefty for the paddle
 */
 /**************************************************************************/

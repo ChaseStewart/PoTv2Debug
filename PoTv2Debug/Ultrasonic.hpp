@@ -1,5 +1,5 @@
 /*!
- * @file Ultrasonic.hpp
+ * \file Ultrasonic.hpp
  *
  * \brief Header containing Ultrasonic Rangefinder config and macros
  * 
