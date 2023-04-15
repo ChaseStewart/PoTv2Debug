@@ -109,19 +109,19 @@ void SensorState::UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2)
 {
   uint8_t result = 0;
 
-  if (ss2 >> 3)
+  if (ss0 & 0x0F)
   {
     result |= 0x1;
   }
-  if (((ss0 >> 5) & 0x0F) || (ss1 & 0x01))
+  if ((ss0 >> 4) & 0x0F)
   {
     result |= 0x2;
   } 
-  if ((ss0 >> 1) & 0x0F)
+  if (ss1 & 0x0F)
   {
     result |= 0x4;
   } 
-  if (((ss1 >> 1) & 0x0E) || (ss0 & 0x01))
+  if (ss2 & 0x0F)
   {
     result |= 0x8;
   } 
@@ -140,7 +140,7 @@ void SensorState::UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2)
 /**************************************************************************/
 void SensorState::UpdateRotPot(void)
 {
-  _rotPot = (_isLefty) ? floor(analogRead(PIN_ROT_POT) * 256.0/1024.0) :  floor((1024 - analogRead(PIN_ROT_POT)) * 128.0/1024.0);
+  _rotPot = (_isLefty) ? floor(analogRead(PIN_ROT_POT) * 128.0/1024.0) :  floor((1024 - analogRead(PIN_ROT_POT)) * 128.0/1024.0);
   if (_rotPot != _prevRotPot)
   {
     _isScreenUpdate = true;
