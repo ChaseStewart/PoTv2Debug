@@ -1,8 +1,8 @@
 # PoTv2Debug
-[![Documentation](https://github.com/adafruit/ci-arduino/blob/master/assets/doxygen_badge.svg)](https://chasestewart.github.io/PoTv2Debug/)
+**Documentation:** [![Documentation](https://github.com/adafruit/ci-arduino/blob/master/assets/doxygen_badge.svg)](https://hiddenlayerdesign.github.io/PoTv2Debug/)
 
 
-This Repository holds firmware to test the second version of the Paddle of Theseus. This is a companion to the [Paddle of Theseus](https://github.com/ChaseStewart/Paddle-of-Theseus) software, instead providing a debug program that uses the serial connection to characterize the sensor input for all of the sensors used in the Paddle of Theseus version 2
+This Repository holds firmware to test the second version of the Paddle of Theseus. This is a companion to the [Paddle of Theseus](https://github.com/HiddenLayerDesign/Paddle-of-Theseus) software, instead providing a debug program that uses the serial connection to characterize the sensor input for all of the sensors used in the Paddle of Theseus version 2
 
 ## Author
 [Chase E Stewart](https://chasestewart.co) for [Hidden Layer Design](https://hiddenlayerdesign.com)
