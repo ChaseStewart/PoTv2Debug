@@ -20,7 +20,7 @@
 #define PIN_ROT_ENC_A  7  ///< Illuminated Rotary Encoder "A" inut for quadrature encoding
 #define PIN_ULTRA_TRIG  10  ///< Trigger pin for ultrasonic rangefinder
 #define PIN_ULTRA_SENS  11  ///< Sensing pin for ultrasonic rangefinder
-#define PIN_ROT_POT  12  ///< Analog pin 12 for Rotary Potentiometer
+#define PIN_ROT_POT  1  ///< Analog pin 1 for Rotary Potentiometer
 #define PIN_FRET_1070_INT  14  ///< GPIO interrupt pin for changes on FretBoard AT42QT1070
 #define PIN_FRET_2120_INT  15  ///< GPIO interrupt pin for changes on FretBoard AT42QT2120
 
