@@ -57,12 +57,14 @@ class SensorState
     void UpdateFret(uint8_t ks0, uint8_t ks1, uint8_t ks2);
     void UpdateRotPot(void);
     void UpdateRotEncSwitch(void);
-    bool UpdateRotEnc(uint8_t newValue);
+    int32_t ProcessRotEnc(int32_t rotEncReading);
+    void UpdateRotEnc(uint8_t newValue);
     uint8_t GetRotEncValue(void);
     void UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2);
     void UpdateUltrasonic(uint8_t newValue);
     void CheckUpdateScreen(void);
     void SetIsLeftyFlipped(bool isFlipped);
+    bool GetIsLeftyFlipped(void);
     void UpdateXYZ(uint8_t x, uint8_t y, uint8_t z);
 };
 

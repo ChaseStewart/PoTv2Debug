@@ -54,6 +54,9 @@ unsigned long range_in_cm;
 uint8_t strumStatus0, strumStatus1, strumStatus2;
 uint8_t keyStatus0, keyStatus1, keyStatus2;
 
+// Rotary Encoder read variable
+int32_t rotEncRetval;
+
 /**************************************************************************/
 /*!
     @brief    Instantiate Serial connection and setup hardware and ports/pins
@@ -64,7 +67,7 @@ void setup()
   Serial.begin(500000);
   delay(1000);
   
-  Serial.println("*** Paddle of Theseus Fretboard Test v2 ***");
+  Serial.println("*** Paddle of Theseus Test Software v2 ***");
   Serial.println();
 
   Serial.println("*** Setup FretBoard ***");
@@ -116,10 +119,10 @@ void loop()
   state.UpdateRotEncSwitch();
 
   // handle rotary encoder state
-  if (state.UpdateRotEnc(RotaryEncoder.read()))
-  {
-    RotaryEncoder.write(state.GetRotEncValue());
-  }
+  rotEncRetval = state.ProcessRotEnc(RotaryEncoder.read()); 
+  RotaryEncoder.write( (state.GetIsLeftyFlipped()) ? 
+                       (-1 *rotEncRetval) : rotEncRetval);
+  state.UpdateRotEnc((uint8_t) rotEncRetval);
 
   // Get Ultrasonic Distance sensor reading
   if (micros() >= ping_time)
