@@ -9,6 +9,7 @@
  *
  */
 #include <Wire.h>
+
 #include "SensorState.hpp"
 #include "Ultrasonic.hpp"
 
@@ -20,7 +21,6 @@
 /**************************************************************************/
 SensorState::SensorState(void)
 {
-  
   _fret = 0;
   _prevFret = 0;
   _key = 0;
@@ -140,7 +140,7 @@ void SensorState::UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2)
 /**************************************************************************/
 void SensorState::UpdateRotPot(void)
 {
-  _rotPot = (_isLefty) ? floor(analogRead(PIN_ROT_POT) * 128.0/1024.0) :  floor((1024 - analogRead(PIN_ROT_POT)) * 128.0/1024.0);
+  _rotPot = (this->GetIsLeftyFlipped()) ? floor(analogRead(PIN_ROT_POT) * 128.0/1024.0) :  floor((1024 - analogRead(PIN_ROT_POT)) * 128.0/1024.0);
   if (_rotPot != _prevRotPot)
   {
     _isScreenUpdate = true;
@@ -156,6 +156,7 @@ void SensorState::UpdateRotPot(void)
 void SensorState::UpdateRotEncSwitch(void)
 {
   _rotEncSwitch = digitalRead(PIN_ROT_ENC_SW);
+ 
   if (_rotEncSwitch != _prevRotEncSwitch)
   {
     _isScreenUpdate = true;
@@ -165,33 +166,43 @@ void SensorState::UpdateRotEncSwitch(void)
 
 /**************************************************************************/
 /*!
+    @brief    Process and constrain output of Encoder.read()
+*/
+/**************************************************************************/
+int32_t SensorState::ProcessRotEnc(int32_t rotEncReading)
+{
+  int32_t rotEnc = (this->GetIsLeftyFlipped()) ? (-1 * rotEncReading) : rotEncReading;
+  if (rotEnc > 255 )
+  {
+    rotEnc = 255;
+  }
+  if (rotEnc < 0 )
+  {
+    rotEnc = 0;
+  }
+  return rotEnc;
+}
+
+/**************************************************************************/
+/*!
     @brief    Store value of Rotary Encoder knob
 */
 /**************************************************************************/
-bool SensorState::UpdateRotEnc(uint8_t newValue)
-{
-  uint8_t constrainedRotEnc;
-   
-  /* Sample Rotary Encoder Twist Knob */
-  if (_isLefty)
-  {
-    _rotEnc =  _prevRotEnc + (-1 * (newValue - _prevRotEnc));
-  }
-  else
-  {
-    _rotEnc = newValue;
-  }
-
-  constrainedRotEnc = constrain(_rotEnc, ROT_ENC_MIN, ROT_ENC_MAX);
-  if (constrainedRotEnc != _prevRotEnc)
+void SensorState::UpdateRotEnc(uint8_t newValue)
+{   
+  _rotEnc=newValue;
+  if (_prevRotEnc != _rotEnc)
   {
     _isScreenUpdate = true;
-    _prevRotEnc = constrainedRotEnc;
-    return true;
+    _prevRotEnc = _rotEnc;
   }
-  return false;
 }
 
+/**************************************************************************/
+/*!
+    @brief    Store value of Ultrasonic Rangefinder
+*/
+/**************************************************************************/
 void SensorState::UpdateUltrasonic(uint8_t newValue)
 {
   _ultraDist = newValue;
@@ -220,7 +231,19 @@ void SensorState::SetIsLeftyFlipped(bool isFlipped)
 
 /**************************************************************************/
 /*!
-    @brief    Set whether lefty mode is enabled
+    @brief    Get whether lefty mode is enabled
+
+    @return True if currently in left-handed orientation, else False
+*/
+/**************************************************************************/
+bool SensorState::GetIsLeftyFlipped(void)
+{
+  return _isLefty;
+}
+
+/**************************************************************************/
+/*!
+    @brief    Update \{X, Y, Z\} variables from IMU
 */
 /**************************************************************************/
 void SensorState::UpdateXYZ(uint8_t x, uint8_t y, uint8_t z)
@@ -293,14 +316,14 @@ void SensorState::CheckUpdateScreen(void)
     Serial.print((_key & 0x4) ? 'x' : ' '); Serial.print("] 1:["); Serial.print((_key & 0x2) ? 'x' : ' '); 
     Serial.print("] 0:["); Serial.print((_key & 0x1) ? 'x' : ' '); Serial.println("]   |");
     Serial.println("+-----------------------------------+-----------------------------------------+");
-    Serial.print("| RotEnc Value: "); _printUint8_t(_rotEnc);
+    Serial.print("| RotEnc Value: "); _printUint8_t(this->GetRotEncValue());
     Serial.print(" RotEnc SW: ["); Serial.print((_rotEncSwitch) ? 'x' : ' '); Serial.print("]  | Potentiometer value:");
     _printUint8_t(_rotPot); Serial.println("/128             |");
     Serial.println("+-----------------------------------+-----------------------------------------+");
     Serial.print("| IMU x:"); _printUint8_t(_imuX);
     Serial.print(" y:"); _printUint8_t(_imuY);
     Serial.print(" z:"); _printUint8_t(_imuZ);
-    Serial.print("  Lefty: ["); Serial.print((_isLefty) ? 'x' : ' ');
+    Serial.print("  Lefty: ["); Serial.print((this->GetIsLeftyFlipped()) ? 'x' : ' ');
     Serial.print("] | Ultrasonic Distance: "); _printUint8_t(_ultraDist);
     Serial.println("                |");
     Serial.println("+===================================+=========================================+");

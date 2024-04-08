@@ -12,8 +12,7 @@
 #include <Wire.h>
 
 #define QTOUCH2120_ADDR  0x1C  ///< Static I2C address for AT42QT2120 part
-#define QTOUCH1070_ADDR  0x1B  ///< Static I2C address for AT42QT2120 part
-
+#define QTOUCH1070_ADDR  0x1B  ///< Static I2C address for AT42QT1070 part
 
 #define REG_QT1070_CHIP_ID 0  ///< AT42QT1070 CHIP_ID register
 #define VAL_QT1070_CHIP_ID 0x2E ///< AT42QT1070 Expected response for reading CHIP_ID register
