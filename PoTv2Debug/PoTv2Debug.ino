@@ -121,7 +121,7 @@ void loop()
   // handle rotary encoder state
   rotEncRetval = state.ProcessRotEnc(RotaryEncoder.read()); 
   RotaryEncoder.write( (state.GetIsLeftyFlipped()) ? 
-                       (-1 *rotEncRetval) : rotEncRetval);
+                      rotEncRetval : (-1 *rotEncRetval) );
   state.UpdateRotEnc((uint8_t) rotEncRetval);
 
   // Get Ultrasonic Distance sensor reading
@@ -183,17 +183,17 @@ static void RotEncSetLED(uint8_t color)
 static void RotEncStandardPattern(void)
 {
   RotEncSetLED(LED_BLUE);
-  delay(500);  
+  delay(130);  
   RotEncSetLED(LED_PURPLE);
-  delay(500);  
+  delay(130);  
   RotEncSetLED(LED_GREEN);
-  delay(500);  
+  delay(130);  
   RotEncSetLED(LED_CYAN);
-  delay(500);  
+  delay(130);  
   RotEncSetLED(LED_RED);
-  delay(500);  
+  delay(130);  
   RotEncSetLED(LED_YELLOW);
-  delay(500);  
+  delay(130);  
   RotEncSetLED(LED_WHITE);
   delay(2000);  
 }

@@ -140,7 +140,9 @@ void SensorState::UpdateStrumKey(uint8_t ss0, uint8_t ss1, uint8_t ss2)
 /**************************************************************************/
 void SensorState::UpdateRotPot(void)
 {
-  _rotPot = (this->GetIsLeftyFlipped()) ? floor(analogRead(PIN_ROT_POT) * 128.0/1024.0) :  floor((1024 - analogRead(PIN_ROT_POT)) * 128.0/1024.0);
+  float intermediate = (this->GetIsLeftyFlipped()) ? floor((1024 - analogRead(PIN_ROT_POT)) * 127.0/1024.0) : floor(analogRead(PIN_ROT_POT) * 127.0/1024.0) ;
+  _rotPot = (uint8_t) intermediate;
+
   if (_rotPot != _prevRotPot)
   {
     _isScreenUpdate = true;
@@ -171,16 +173,8 @@ void SensorState::UpdateRotEncSwitch(void)
 /**************************************************************************/
 int32_t SensorState::ProcessRotEnc(int32_t rotEncReading)
 {
-  int32_t rotEnc = (this->GetIsLeftyFlipped()) ? (-1 * rotEncReading) : rotEncReading;
-  if (rotEnc > 255 )
-  {
-    rotEnc = 255;
-  }
-  if (rotEnc < 0 )
-  {
-    rotEnc = 0;
-  }
-  return rotEnc;
+  int32_t rotEnc = (this->GetIsLeftyFlipped()) ? rotEncReading : (-1 * rotEncReading) ;
+  return constrain(rotEnc, 0,255);
 }
 
 /**************************************************************************/
